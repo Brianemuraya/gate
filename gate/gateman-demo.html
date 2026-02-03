@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gateman Security App - Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e8e8e8;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 24px 32px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+    }
+
+    .title h1 {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, #a8a8a8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .title p {
+      margin-top: 4px;
+      color: #a0a0a0;
+      font-size: 14px;
+    }
+
+    .time-display {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .alert {
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid #4ade80;
+      color: #4ade80;
+      padding: 16px 24px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-weight: 500;
+      font-size: 15px;
+      animation: slideIn 0.3s ease-out;
+      display: none;
+    }
+
+    .alert.error {
+      background: rgba(248, 113, 113, 0.1);
+      border-color: #f87171;
+      color: #f87171;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 14px 20px;
+      background: transparent;
+      color: #a0a0a0;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+    }
+
+    .tab:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .content-panel {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      display: none;
+    }
+
+    .content-panel.active {
+      display: block;
+    }
+
+    .panel-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #c0c0c0;
+    }
+
+    .form-group input {
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.3s ease;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .form-group input:focus {
+      border-color: #ff6b6b;
+    }
+
+    .form-group small {
+      color: #888;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(74, 222, 128, 0.3);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(248, 113, 113, 0.3);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .visitor-card {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .visitor-field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .visitor-field-label {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .visitor-field-value {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .status-badge {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-inside {
+      background: rgba(74, 222, 128, 0.1);
+      color: #4ade80;
+    }
+
+    .status-left {
+      background: rgba(148, 163, 184, 0.1);
+      color: #94a3b8;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      padding: 12px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    td {
+      padding: 16px 12px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+      font-size: 15px;
+    }
+
+    .demo-notice {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid #fbbf24;
+      border-radius: 12px;
+      padding: 16px 20px;
+      max-width: 300px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .demo-notice-title {
+      font-size: 13px;
+      color: #fbbf24;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .demo-notice-text {
+      font-size: 12px;
+      color: #d4d4d4;
+      line-height: 1.5;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .visitor-card {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      table {
+        font-size: 12px;
+      }
+
+      th, td {
+        padding: 8px 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <div class="logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div class="title">
+          <h1>Gateman Security</h1>
+          <p>Building Access Control System</p>
+        </div>
+      </div>
+      <div class="time-display">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span id="current-time">--:--</span>
+      </div>
+    </div>
+
+    <!-- Alert -->
+    <div id="alert" class="alert"></div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('checkin')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+          <polyline points="10 17 15 12 10 7"></polyline>
+          <line x1="15" y1="12" x2="3" y2="12"></line>
+        </svg>
+        Check In
+      </button>
+      <button class="tab" onclick="switchTab('checkout')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        Check Out
+      </button>
+      <button class="tab" onclick="switchTab('active')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        Inside Now
+      </button>
+      <button class="tab" onclick="switchTab('history')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        History
+      </button>
+    </div>
+
+    <!-- Check In Panel -->
+    <div id="checkin-panel" class="content-panel active">
+      <h2 class="panel-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+          <polyline points="10 17 15 12 10 7"></polyline>
+          <line x1="15" y1="12" x2="3" y2="12"></line>
+        </svg>
+        Check In Visitor
+      </h2>
+      <form id="checkin-form" onsubmit="handleCheckIn(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>ID Number *</label>
+            <input type="text" id="id-number" placeholder="24807965" maxlength="8" required>
+            <small>8 digits only</small>
+          </div>
+          <div class="form-group">
+            <label>First Name *</label>
+            <input type="text" id="first-name" placeholder="Edward" required>
+          </div>
+          <div class="form-group">
+            <label>Last Name *</label>
+            <input type="text" id="last-name" placeholder="John" required>
+          </div>
+          <div class="form-group">
+            <label>Car Plate (Optional)</label>
+            <input type="text" id="car-plate" placeholder="KBM243T" maxlength="7">
+            <small>e.g., KBM243T</small>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+          Check In Visitor
+        </button>
+      </form>
+    </div>
+
+    <!-- Check Out Panel -->
+    <div id="checkout-panel" class="content-panel">
+      <h2 class="panel-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        Check Out Visitor
+      </h2>
+      <form onsubmit="handleCheckOut(event)">
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label>Enter ID Number</label>
+          <input type="text" id="search-id" placeholder="24807965" maxlength="8" required>
+        </div>
+        <button type="submit" class="btn btn-danger">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          Check Out Visitor
+        </button>
+      </form>
+    </div>
+
+    <!-- Active Visitors Panel -->
+    <div id="active-panel" class="content-panel">
+      <h2 class="panel-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        Currently Inside (<span id="active-count">0</span>)
+      </h2>
+      <div id="active-visitors"></div>
+    </div>
+
+    <!-- History Panel -->
+    <div id="history-panel" class="content-panel">
+      <h2 class="panel-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        Recent Activity
+      </h2>
+      <div id="history-list"></div>
+    </div>
+
+    <!-- Demo Notice -->
+    <div class="demo-notice">
+      <div class="demo-notice-title">📝 Demo Mode</div>
+      <div class="demo-notice-text">
+        This is a demo version with local storage. Set up Firebase to enable cloud sync and multi-device access.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Local storage simulation (replace with Firebase in production)
+    let visitors = JSON.parse(localStorage.getItem('visitors')) || [];
+
+    // Update time
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('current-time').textContent = now.toLocaleTimeString('en-KE', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // Show alert
+    function showAlert(message, type = 'success') {
+      const alert = document.getElementById('alert');
+      alert.textContent = message;
+      alert.className = `alert ${type} show`;
+      setTimeout(() => {
+        alert.classList.remove('show');
+      }, 5000);
+    }
+
+    // Switch tabs
+    function switchTab(tab) {
+      // Update tab buttons
+      document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
+      event.target.closest('.tab').classList.add('active');
+
+      // Update panels
+      document.querySelectorAll('.content-panel').forEach(panel => panel.classList.remove('active'));
+      document.getElementById(`${tab}-panel`).classList.add('active');
+
+      // Refresh data for active tabs
+      if (tab === 'active') renderActiveVisitors();
+      if (tab === 'history') renderHistory();
+    }
+
+    // Validate ID
+    function validateId(id) {
+      return /^\d{8}$/.test(id);
+    }
+
+    // Validate car plate
+    function validatePlate(plate) {
+      if (!plate) return true;
+      return /^[A-Z]{3}\d{3}[A-Z]$/.test(plate.toUpperCase());
+    }
+
+    // Check In
+    function handleCheckIn(event) {
+      event.preventDefault();
+
+      const idNumber = document.getElementById('id-number').value;
+      const firstName = document.getElementById('first-name').value.trim();
+      const lastName = document.getElementById('last-name').value.trim();
+      const carPlate = document.getElementById('car-plate').value.toUpperCase().trim();
+
+      // Validation
+      if (!validateId(idNumber)) {
+        showAlert('ID must be exactly 8 digits', 'error');
+        return;
+      }
+
+      if (!firstName || !lastName) {
+        showAlert('First name and last name are required', 'error');
+        return;
+      }
+
+      if (carPlate && !validatePlate(carPlate)) {
+        showAlert('Car plate must be in Kenyan format (e.g., KBM243T)', 'error');
+        return;
+      }
+
+      // Check if already inside
+      const alreadyInside = visitors.find(v => v.idNumber === idNumber && v.status === 'inside');
+      if (alreadyInside) {
+        showAlert('This person is already checked in!', 'error');
+        return;
+      }
+
+      // Add visitor
+      const visitor = {
+        id: Date.now(),
+        idNumber,
+        firstName,
+        lastName,
+        carPlate: carPlate || null,
+        timeIn: new Date().toISOString(),
+        timeOut: null,
+        status: 'inside'
+      };
+
+      visitors.push(visitor);
+      localStorage.setItem('visitors', JSON.stringify(visitors));
+
+      showAlert(`${firstName} ${lastName} checked in successfully!`, 'success');
+      document.getElementById('checkin-form').reset();
+    }
+
+    // Check Out
+    function handleCheckOut(event) {
+      event.preventDefault();
+
+      const searchId = document.getElementById('search-id').value;
+
+      if (!validateId(searchId)) {
+        showAlert('Please enter a valid 8-digit ID', 'error');
+        return;
+      }
+
+      const visitor = visitors.find(v => v.idNumber === searchId && v.status === 'inside');
+      if (!visitor) {
+        showAlert('No active check-in found for this ID', 'error');
+        return;
+      }
+
+      visitor.timeOut = new Date().toISOString();
+      visitor.status = 'left';
+      localStorage.setItem('visitors', JSON.stringify(visitors));
+
+      showAlert(`${visitor.firstName} ${visitor.lastName} checked out successfully!`, 'success');
+      document.getElementById('search-id').value = '';
+    }
+
+    // Render active visitors
+    function renderActiveVisitors() {
+      const container = document.getElementById('active-visitors');
+      const activeVisitors = visitors.filter(v => v.status === 'inside');
+      
+      document.getElementById('active-count').textContent = activeVisitors.length;
+
+      if (activeVisitors.length === 0) {
+        container.innerHTML = '<div class="empty-state">No visitors inside the building</div>';
+        return;
+      }
+
+      container.innerHTML = activeVisitors.map(v => `
+        <div class="visitor-card">
+          <div class="visitor-field">
+            <div class="visitor-field-label">Name</div>
+            <div class="visitor-field-value">${v.firstName} ${v.lastName}</div>
+          </div>
+          <div class="visitor-field">
+            <div class="visitor-field-label">ID Number</div>
+            <div class="visitor-field-value" style="font-family: monospace">${v.idNumber}</div>
+          </div>
+          <div class="visitor-field">
+            <div class="visitor-field-label">${v.carPlate ? 'Vehicle' : 'Time In'}</div>
+            <div class="visitor-field-value">
+              ${v.carPlate ? `🚗 ${v.carPlate}` : formatTime(v.timeIn)}
+            </div>
+          </div>
+          <div class="status-badge status-inside">INSIDE</div>
+        </div>
+      `).join('');
+    }
+
+    // Render history
+    function renderHistory() {
+      const container = document.getElementById('history-list');
+      const recentVisitors = [...visitors].reverse().slice(0, 20);
+
+      if (recentVisitors.length === 0) {
+        container.innerHTML = '<div class="empty-state">No activity recorded yet</div>';
+        return;
+      }
+
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Vehicle</th>
+              <th>Time In</th>
+              <th>Time Out</th>
+              <th>Duration</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${recentVisitors.map(v => `
+              <tr>
+                <td style="font-family: monospace">${v.idNumber}</td>
+                <td style="font-weight: 500">${v.firstName} ${v.lastName}</td>
+                <td>${v.carPlate || '-'}</td>
+                <td>${formatTime(v.timeIn)}</td>
+                <td>${v.timeOut ? formatTime(v.timeOut) : '-'}</td>
+                <td>${calculateDuration(v.timeIn, v.timeOut)}</td>
+                <td>
+                  <span class="status-badge status-${v.status}">
+                    ${v.status}
+                  </span>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    // Format time
+    function formatTime(isoString) {
+      if (!isoString) return '-';
+      const date = new Date(isoString);
+      return date.toLocaleString('en-KE', {
+        hour: '2-digit',
+        minute: '2-digit',
+        day: '2-digit',
+        month: 'short'
+      });
+    }
+
+    // Calculate duration
+    function calculateDuration(timeIn, timeOut) {
+      if (!timeIn || !timeOut) return '-';
+      const diff = new Date(timeOut) - new Date(timeIn);
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      return `${hours}h ${minutes}m`;
+    }
+
+    // Initialize
+    renderActiveVisitors();
+    renderHistory();
+  </script>
+</body>
+</html>
