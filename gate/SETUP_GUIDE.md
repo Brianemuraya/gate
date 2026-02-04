@@ -4,12 +4,13 @@
 This is a Firebase-powered CRUD application for building security/gateman use. It allows recording visitor and vehicle entry/exit with automatic timestamps.
 
 ## Features
-✅ **Check In** - Record visitor entry with ID, name, and optional vehicle plate
+✅ **Check In** - Record visitor entry with ID, mobile number, name, and optional vehicle plate
 ✅ **Check Out** - Sign out visitors by ID number
 ✅ **Active Visitors** - View all people currently inside the building
 ✅ **History** - Complete log of all entries and exits with duration
 ✅ **Real-time Updates** - Data syncs automatically across all devices
 ✅ **Kenyan ID Format** - Validates 8-digit ID numbers
+✅ **Kenyan Mobile Format** - Validates and normalizes Kenyan mobile numbers
 ✅ **Kenyan Plate Format** - Validates format like KBM243T
 
 ## Firebase Setup Instructions
@@ -97,6 +98,7 @@ Each document contains:
 ```javascript
 {
   idNumber: "24807965",        // 8-digit Kenyan ID
+  mobileNumber: "254712345678", // Kenyan mobile number (normalized to 254 format)
   firstName: "Edward",          // Visitor first name
   lastName: "John",             // Visitor last name
   carPlate: "KBM243T",         // Optional, Kenyan plate format
@@ -112,10 +114,11 @@ Each document contains:
 ### Check In Process
 1. Click "Check In" tab
 2. Enter 8-digit ID number (must be all digits)
-3. Enter first name and last name
-4. Optionally enter car plate in format: KBM243T
-5. Click "Check In Visitor"
-6. System automatically records current time
+3. Enter mobile number (Kenyan format: 0712345678 or 254712345678)
+4. Enter first name and last name
+5. Optionally enter car plate in format: KBM243T
+6. Click "Check In Visitor"
+7. System automatically records current time
 
 ### Check Out Process
 1. Click "Check Out" tab
@@ -138,6 +141,13 @@ Each document contains:
 - Must be exactly 8 digits
 - All characters must be numbers
 - Example: `24807965`
+
+### Mobile Number
+- Kenyan mobile number format
+- Accepts: `0712345678`, `254712345678`, or `+254712345678`
+- Must start with 07 or 01 (Safaricom, Airtel, Telkom)
+- Automatically normalized to 254 format for storage
+- Example: `0712345678` → stored as `254712345678`
 
 ### Car Plate (Optional)
 - Kenyan format: 3 letters + 3 numbers + 1 letter

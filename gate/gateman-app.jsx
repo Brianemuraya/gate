@@ -32,6 +32,7 @@ const GatemanApp = () => {
   const [activeTab, setActiveTab] = useState('checkin');
   const [formData, setFormData] = useState({
     idNumber: '',
+    mobileNumber: '',
     firstName: '',
     lastName: '',
     carPlate: ''
@@ -88,10 +89,15 @@ const GatemanApp = () => {
   };
 
   const validateForm = () => {
-    const { idNumber, firstName, lastName } = formData;
+    const { idNumber, mobileNumber, firstName, lastName } = formData;
     
     if (!idNumber || idNumber.length !== 8 || !/^\d{8}$/.test(idNumber)) {
       showMessage('ID must be exactly 8 digits', 'error');
+      return false;
+    }
+    
+    if (!mobileNumber || !/^(?:254|\+254|0)?([17]\d{8})$/.test(mobileNumber)) {
+      showMessage('Mobile number must be a valid Kenyan number (e.g., 0712345678 or 254712345678)', 'error');
       return false;
     }
     
@@ -131,8 +137,11 @@ const GatemanApp = () => {
       }
       
       // Add new check-in record
+      const normalizedMobile = formData.mobileNumber.replace(/^(\+254|254|0)/, '254');
+      
       await addDoc(collection(db, 'visitors'), {
         idNumber: formData.idNumber,
+        mobileNumber: normalizedMobile,
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         carPlate: formData.carPlate.toUpperCase().trim() || null,
@@ -143,7 +152,7 @@ const GatemanApp = () => {
       });
       
       showMessage(`${formData.firstName} ${formData.lastName} checked in successfully!`, 'success');
-      setFormData({ idNumber: '', firstName: '', lastName: '', carPlate: '' });
+      setFormData({ idNumber: '', mobileNumber: '', firstName: '', lastName: '', carPlate: '' });
       
       // Reload data
       await loadActiveVisitors();
@@ -427,6 +436,42 @@ const GatemanApp = () => {
                     fontWeight: '600',
                     color: '#c0c0c0'
                   }}>
+                    Mobile Number *
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.mobileNumber}
+                    onChange={(e) => setFormData({...formData, mobileNumber: e.target.value})}
+                    placeholder="0712345678"
+                    maxLength="13"
+                    style={{
+                      width: '100%',
+                      padding: '14px 16px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '10px',
+                      color: '#fff',
+                      fontSize: '15px',
+                      outline: 'none',
+                      transition: 'all 0.3s ease',
+                      boxSizing: 'border-box'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#ff6b6b'}
+                    onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)'}
+                  />
+                  <small style={{ color: '#888', fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                    e.g., 0712345678
+                  </small>
+                </div>
+
+                <div>
+                  <label style={{ 
+                    display: 'block', 
+                    marginBottom: '8px', 
+                    fontSize: '14px', 
+                    fontWeight: '600',
+                    color: '#c0c0c0'
+                  }}>
                     First Name *
                   </label>
                   <input
@@ -674,7 +719,7 @@ const GatemanApp = () => {
                       borderRadius: '12px',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
                       display: 'grid',
-                      gridTemplateColumns: '1fr 1fr 1fr auto',
+                      gridTemplateColumns: '1fr 1fr 1fr 1fr auto',
                       gap: '20px',
                       alignItems: 'center'
                     }}
@@ -689,6 +734,12 @@ const GatemanApp = () => {
                       <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>ID Number</div>
                       <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'monospace' }}>
                         {visitor.idNumber}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>Mobile</div>
+                      <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'monospace' }}>
+                        {visitor.mobileNumber || '-'}
                       </div>
                     </div>
                     <div>
@@ -766,6 +817,7 @@ const GatemanApp = () => {
                     <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
                       <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#888' }}>ID</th>
                       <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#888' }}>Name</th>
+                      <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#888' }}>Mobile</th>
                       <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#888' }}>Vehicle</th>
                       <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#888' }}>Time In</th>
                       <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#888' }}>Time Out</th>
@@ -781,6 +833,9 @@ const GatemanApp = () => {
                         </td>
                         <td style={{ padding: '16px 12px', fontSize: '14px', fontWeight: '500' }}>
                           {record.firstName} {record.lastName}
+                        </td>
+                        <td style={{ padding: '16px 12px', fontSize: '14px', fontFamily: 'monospace' }}>
+                          {record.mobileNumber || '-'}
                         </td>
                         <td style={{ padding: '16px 12px', fontSize: '14px' }}>
                           {record.carPlate || '-'}

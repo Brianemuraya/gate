@@ -246,7 +246,7 @@
       border-radius: 12px;
       border: 1px solid rgba(255, 255, 255, 0.1);
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr auto;
+      grid-template-columns: 1fr 1fr 1fr 1fr auto;
       gap: 20px;
       align-items: center;
       margin-bottom: 12px;
@@ -459,6 +459,11 @@
             <small>8 digits only</small>
           </div>
           <div class="form-group">
+            <label>Mobile Number *</label>
+            <input type="tel" id="mobile-number" placeholder="0712345678" maxlength="13" required>
+            <small>e.g., 0712345678</small>
+          </div>
+          <div class="form-group">
             <label>First Name *</label>
             <input type="text" id="first-name" placeholder="Edward" required>
           </div>
@@ -589,6 +594,11 @@
       return /^\d{8}$/.test(id);
     }
 
+    // Validate mobile number (Kenyan format)
+    function validateMobile(mobile) {
+      return /^(?:254|\+254|0)?([17]\d{8})$/.test(mobile);
+    }
+
     // Validate car plate
     function validatePlate(plate) {
       if (!plate) return true;
@@ -600,6 +610,7 @@
       event.preventDefault();
 
       const idNumber = document.getElementById('id-number').value;
+      const mobileNumber = document.getElementById('mobile-number').value.trim();
       const firstName = document.getElementById('first-name').value.trim();
       const lastName = document.getElementById('last-name').value.trim();
       const carPlate = document.getElementById('car-plate').value.toUpperCase().trim();
@@ -607,6 +618,11 @@
       // Validation
       if (!validateId(idNumber)) {
         showAlert('ID must be exactly 8 digits', 'error');
+        return;
+      }
+
+      if (!validateMobile(mobileNumber)) {
+        showAlert('Mobile number must be a valid Kenyan number (e.g., 0712345678)', 'error');
         return;
       }
 
@@ -627,10 +643,14 @@
         return;
       }
 
+      // Normalize mobile number to 254 format
+      const normalizedMobile = mobileNumber.replace(/^(\+254|254|0)/, '254');
+
       // Add visitor
       const visitor = {
         id: Date.now(),
         idNumber,
+        mobileNumber: normalizedMobile,
         firstName,
         lastName,
         carPlate: carPlate || null,
@@ -694,6 +714,10 @@
             <div class="visitor-field-value" style="font-family: monospace">${v.idNumber}</div>
           </div>
           <div class="visitor-field">
+            <div class="visitor-field-label">Mobile</div>
+            <div class="visitor-field-value" style="font-family: monospace">${v.mobileNumber || '-'}</div>
+          </div>
+          <div class="visitor-field">
             <div class="visitor-field-label">${v.carPlate ? 'Vehicle' : 'Time In'}</div>
             <div class="visitor-field-value">
               ${v.carPlate ? `🚗 ${v.carPlate}` : formatTime(v.timeIn)}
@@ -720,6 +744,7 @@
             <tr>
               <th>ID</th>
               <th>Name</th>
+              <th>Mobile</th>
               <th>Vehicle</th>
               <th>Time In</th>
               <th>Time Out</th>
@@ -732,6 +757,7 @@
               <tr>
                 <td style="font-family: monospace">${v.idNumber}</td>
                 <td style="font-weight: 500">${v.firstName} ${v.lastName}</td>
+                <td style="font-family: monospace">${v.mobileNumber || '-'}</td>
                 <td>${v.carPlate || '-'}</td>
                 <td>${formatTime(v.timeIn)}</td>
                 <td>${v.timeOut ? formatTime(v.timeOut) : '-'}</td>
